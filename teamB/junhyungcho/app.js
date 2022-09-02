@@ -3,7 +3,11 @@ const http = require('http');
 const express = require('express');
 const cors = require('cors'); //web 3.0 세대 프/백 간 통신 완화
 const morgan = require('morgan');
-// const dotenv = require('dotenv');
+//morgan 로깅 서비스가 기본적으로 제공하는 옵션이 몇 개 있다.
+//ex) 'combined' ::1 - - [30/Aug/2022:16:01:10 +0000] "GET /ping HTTP/1.1" 200 18 "-" "HTTPie/3.2.1"
+//ex) 'tiny' GET/ping 200 18 - 2.150 ms
+//ex) 'dev' GET/ping 200 2.204 ms - 18
+const routes = require('./routes');
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT;
@@ -21,7 +25,7 @@ const database = new DataSource({
 });
 
 database.initialize()
-    .finally(() => console.log("Data Source has been initialized!"))
+    .then(() => console.log("Data Source has been initialized!"))
     .catch((err) => {
         console.error(err);
         database.destroy();
@@ -33,14 +37,12 @@ database.initialize()
 //app.use => middleware를 추가하는 함수
 app.use(cors());
 app.use(morgan('dev'));
-//morgan 로깅 서비스가 기본적으로 제공하는 옵션이 몇 개 있다.
-//ex) 'combined' ::1 - - [30/Aug/2022:16:01:10 +0000] "GET /ping HTTP/1.1" 200 18 "-" "HTTPie/3.2.1"
-//ex) 'tiny' GET/ping 200 18 - 2.150 ms
-//ex) 'dev' GET/ping 200 2.204 ms - 18
 app.use(express.json());
 //Router app.httpMethod(): app.use()로 수렴되는 모든 http 메소드를 각각의 요청에 맞게 의도한 callback함수만 동작하도록 분기처리.
+app.use(routes);
 //health check : 운영중인 시스템의 구성요소 가동현황 분석을 통하여 시스템의 전반적인 건강상태를 진단합니다. 시스템 진단 컨설팅은 개선이 필요한 Weak Point를 도출하고 운영 중 발생할 수 있는 위험요소를 찾아내어 제공합니다.
 app.get('/ping', cors(), (req, res, next) => res.status(200).json({ message : "pong" }));
+
 //Register
 app.post('/users', async (req, res, next) => {
     const { first_name, last_name, age } = req.body;
