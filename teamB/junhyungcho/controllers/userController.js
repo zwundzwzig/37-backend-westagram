@@ -1,16 +1,16 @@
-const userService = require('../services/userService');
+const userService = require("../services/userService");
 
 const signUp = async (req, res) => {
   try {
     const { first_name, last_naem, age } = req.body;
 
-    if ( !name || !email || !password || !profileImage ) {
-      return res.status(400).json({ message: 'KEY_ERROR' });
+    if (!name || !email || !password || !profileImage) {
+      return res.status(400).json({ message: "KEY_ERROR" });
     }
 
-    await userService.signUp( first_name, last_naem, age );
+    await userService.signUp(first_name, last_naem, age);
     return res.status(201).json({
-      message: 'SIGNUP_SUCCESS',
+      message: "SIGNUP_SUCCESS",
     });
   } catch (err) {
     console.log(err);
@@ -19,5 +19,5 @@ const signUp = async (req, res) => {
 };
 
 module.exports = {
-	signUp
-}
+  signUp,
+};
